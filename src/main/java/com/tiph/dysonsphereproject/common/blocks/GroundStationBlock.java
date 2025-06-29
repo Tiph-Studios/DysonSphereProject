@@ -1,5 +1,6 @@
 package com.tiph.dysonsphereproject.common.blocks;
 
+import com.mojang.serialization.MapCodec;
 import com.tiph.dysonsphereproject.common.blocks.entities.GroundStationBlockEntity;
 import com.tiph.dysonsphereproject.common.init.DysonBlockEntities;
 import javax.annotation.Nullable;
@@ -14,11 +15,18 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 public class GroundStationBlock extends BaseEntityBlock {
+
   private static final String REGISTRY_SUFFIX = "ground_station";
   private static final float DESTROY_TIME = 2.0f;
+  private static final MapCodec<GroundStationBlock> CODEC = simpleCodec(GroundStationBlock::new);
 
   public GroundStationBlock(Properties p) {
     super(p);
+  }
+
+  @Override
+  protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
+    return CODEC;
   }
 
   public static String getRegistrySuffix() {

@@ -30,23 +30,20 @@ public class DysonBlockEntities {
       BLOCK_ENTITIES.register(
           SolarGeneratorBlock.getRegistrySuffix(),
           () ->
-              BlockEntityType.Builder.of(
-                      SolarGeneratorBlockEntity::new, DysonBlocks.SOLAR_GENERATOR.get())
-                  .build(null));
+              new BlockEntityType<>(
+                  SolarGeneratorBlockEntity::new, DysonBlocks.SOLAR_GENERATOR.get()));
 
   public static final Supplier<BlockEntityType<WarpDislocatorBlockEntity>> WARP_DISLOCATOR_ENTITY =
       BLOCK_ENTITIES.register(
           WarpDislocatorBlock.getRegistrySuffix(),
           () ->
-              BlockEntityType.Builder.of(
-                      WarpDislocatorBlockEntity::new, DysonBlocks.WARP_DISLOCATOR.get())
-                  .build(null));
+              new BlockEntityType<>(
+                  WarpDislocatorBlockEntity::new, DysonBlocks.WARP_DISLOCATOR.get()));
 
   public static final Supplier<BlockEntityType<GroundStationBlockEntity>> GROUND_STATION_ENTITY =
       BLOCK_ENTITIES.register(
           GroundStationBlock.getRegistrySuffix(),
           () ->
-              BlockEntityType.Builder.of(
-                      GroundStationBlockEntity::new, DysonBlocks.GROUND_STATION.get())
-                  .build(null));
+              new BlockEntityType<>(
+                  GroundStationBlockEntity::new, DysonBlocks.GROUND_STATION.get()));
 }

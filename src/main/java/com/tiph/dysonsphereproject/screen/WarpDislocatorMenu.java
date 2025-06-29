@@ -9,10 +9,12 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.capabilities.Capabilities;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class WarpDislocatorMenu extends AbstractContainerMenu {
+
   public final WarpDislocatorBlockEntity blockEntity;
   private final Level level;
   private final ContainerData data;
@@ -36,8 +38,9 @@ public class WarpDislocatorMenu extends AbstractContainerMenu {
     addPlayerInventory(inv);
     addPlayerHotbar(inv);
 
+    //todo
     this.blockEntity
-        .getCapability(Capabilities.ITEM_HANDLER)
+        .getCapability(Capabilities.ItemHandler.)
         .ifPresent(
             iItemHandler -> {
               this.addSlot(new SlotItemHandler(iItemHandler, 0, 80, 59));

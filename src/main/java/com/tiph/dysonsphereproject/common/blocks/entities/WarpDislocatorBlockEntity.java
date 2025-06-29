@@ -6,8 +6,6 @@ import com.tiph.dysonsphereproject.common.items.BasicItems;
 import com.tiph.dysonsphereproject.screen.WarpDislocatorMenu;
 import com.tiph.dysonsphereproject.util.OrbitalCollectorSavedData;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
@@ -17,12 +15,11 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.capabilities.Capabilities;
-import net.neoforged.neoforge.common.capabilities.Capability;
-import net.neoforged.neoforge.common.util.LazyOptional;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -40,7 +37,6 @@ public class WarpDislocatorBlockEntity extends DysonEnergyBlockEntity implements
   // ITEM STORAGE
   //
   private final ItemStackHandler itemHandler = new WarpDislocatorItemStackHandler(1);
-  private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
   private static final int INPUT_SLOT = 0;
 
   // Time in ticks it takes to fire an orbital collector
@@ -48,54 +44,32 @@ public class WarpDislocatorBlockEntity extends DysonEnergyBlockEntity implements
 
   private int dislocationProgress = 0;
 
-  @Override
-  public @NotNull <T> LazyOptional<T> getCapability(
-      @NotNull Capability<T> cap, @Nullable Direction side) {
-
-    if (cap == Capabilities.ITEM_HANDLER && side != Direction.UP) {
-      return lazyItemHandler.cast();
-    }
-
-    return super.getCapability(cap, side);
-  }
-
   public WarpDislocatorBlockEntity(BlockPos pos, BlockState state) {
     super(DysonBlockEntities.WARP_DISLOCATOR_ENTITY.get(), pos, state);
   }
 
   @Override
-  public void onLoad() {
-    super.onLoad();
-    lazyItemHandler = LazyOptional.of(() -> itemHandler);
+  protected void saveAdditional(ValueOutput output) {
+    itemHandler.serialize(output);
+    output.putInt("dislocationProgress", dislocationProgress);
+    super.saveAdditional(output);
   }
 
   @Override
-  public void invalidateCaps() {
-    super.invalidateCaps();
-    lazyItemHandler.invalidate();
+  protected void loadAdditional(ValueInput input) {
+    itemHandler.deserialize(input);
+    dislocationProgress = input.getInt("dislocationProgress").orElseThrow();
+    super.loadAdditional(input);
   }
 
   @Override
-  protected void saveAdditional(CompoundTag compoundTag) {
-    compoundTag.put("inventory", itemHandler.serializeNBT());
-    compoundTag.putInt("dislocationProgress", dislocationProgress);
-    super.saveAdditional(compoundTag);
-  }
-
-  @Override
-  public void load(CompoundTag compoundTag) {
-    itemHandler.deserializeNBT(compoundTag.getCompound("inventory"));
-    dislocationProgress = compoundTag.getInt("dislocationProgress");
-    super.load(compoundTag);
-  }
-
-  public void drops() {
+  public void preRemoveSideEffects(@NotNull BlockPos pos, @NotNull BlockState state) {
     final SimpleContainer inventory = new SimpleContainer(itemHandler.getSlots());
     for (int i = 0; i < itemHandler.getSlots(); i++) {
       inventory.setItem(i, itemHandler.getStackInSlot(i));
     }
-
     Containers.dropContents(this.level, this.worldPosition, inventory);
+    super.preRemoveSideEffects(pos, state);
   }
 
   public void tick(final Level level, final BlockPos pos, final BlockState blockState) {
@@ -210,4 +184,21 @@ public class WarpDislocatorBlockEntity extends DysonEnergyBlockEntity implements
   public boolean canReceive() {
     return true;
   }
+
+  //
+  // CUSTOM ITEM STACK HANDLER
+  //
+
+  private static class WarpDislocatorItemStackHandler extends ItemStackHandler {
+
+    public WarpDislocatorItemStackHandler(int size) {
+      super(size);
+    }
+
+    @Override
+    public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+      return stack.getItem() == DysonItems.getBasicItem(BasicItems.ORBITAL_COLLECTOR).get();
+    }
+  }
+
 }

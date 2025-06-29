@@ -1,5 +1,6 @@
 package com.tiph.dysonsphereproject.common.blocks;
 
+import com.mojang.serialization.MapCodec;
 import com.tiph.dysonsphereproject.common.blocks.entities.SolarGeneratorBlockEntity;
 import com.tiph.dysonsphereproject.common.init.DysonBlockEntities;
 import java.util.List;
@@ -28,9 +29,15 @@ import org.jetbrains.annotations.NotNull;
 public class SolarGeneratorBlock extends BaseEntityBlock {
   private static final String REGISTRY_SUFFIX = "solar_generator";
   private static final float DESTROY_TIME = 2.0f;
+  private static final MapCodec<SolarGeneratorBlock> CODEC = simpleCodec(SolarGeneratorBlock::new);
+
   private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16.0, 8.0, 16.0);
 
   private final int powerGen;
+
+  private SolarGeneratorBlock(Properties p) {
+    this(p, 0);
+  }
 
   public SolarGeneratorBlock(Properties p, final int powerGen) {
     super(p);
@@ -113,5 +120,10 @@ public class SolarGeneratorBlock extends BaseEntityBlock {
         blockEntityType,
         DysonBlockEntities.SOLAR_GENERATOR_ENTITY.get(),
         (level1, pos, blockState1, blockEntity) -> blockEntity.tick(level1, pos, blockState1));
+  }
+
+  @Override
+  protected MapCodec<? extends BaseEntityBlock> codec() {
+    return CODEC;
   }
 }

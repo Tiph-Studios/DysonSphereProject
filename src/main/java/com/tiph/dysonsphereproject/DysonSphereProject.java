@@ -14,7 +14,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
@@ -35,7 +36,7 @@ public class DysonSphereProject {
   // The constructor for the mod class is the first code that is run when your mod is loaded.
   // FML will recognize some parameter types like IEventBus or ModContainer and pass them in
   // automatically.
-  public DysonSphereProject(IEventBus modEventBus) {
+  public DysonSphereProject(IEventBus modEventBus, ModContainer modContainer) {
     // Register the commonSetup method for modloading
     modEventBus.addListener(this::commonSetup);
 
@@ -54,7 +55,7 @@ public class DysonSphereProject {
     NeoForge.EVENT_BUS.register(this);
 
     // Register our mod's ModConfigSpec so that FML can create and load the config file for us
-    ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+    modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
   }
 
   private void commonSetup(final FMLCommonSetupEvent event) {
@@ -86,22 +87,15 @@ public class DysonSphereProject {
     LOGGER.info("HELLO from server starting");
   }
 
-  // You can use EventBusSubscriber to automatically register all static methods in the class
-  // annotated with @SubscribeEvent
-  @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+  // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
+  @EventBusSubscriber(modid = MODID, value = Dist.CLIENT)
   public static class ClientModEvents {
-
-    private ClientModEvents() {
-      // Do not instantiate
-      throw new UnsupportedOperationException("Utility class");
-    }
-
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
       // Some client setup code
       LOGGER.info("HELLO FROM CLIENT SETUP");
       LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
-
+      //todo
       MenuScreens.register(DysonMenuTypes.WARP_DISLOCATOR_MENU.get(), WarpDislocatorScreen::new);
     }
   }

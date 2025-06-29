@@ -1,5 +1,6 @@
 package com.tiph.dysonsphereproject.common.blocks;
 
+import com.mojang.serialization.MapCodec;
 import com.tiph.dysonsphereproject.common.blocks.entities.WarpDislocatorBlockEntity;
 import com.tiph.dysonsphereproject.common.init.DysonBlockEntities;
 import javax.annotation.Nullable;
@@ -22,9 +23,16 @@ import org.jetbrains.annotations.NotNull;
 public class WarpDislocatorBlock extends BaseEntityBlock {
   private static final String REGISTRY_SUFFIX = "warp_dislocator";
   private static final float DESTROY_TIME = 2.0f;
+  private static final MapCodec<WarpDislocatorBlock> CODEC = simpleCodec(WarpDislocatorBlock::new);
+
 
   public WarpDislocatorBlock(Properties p) {
     super(p);
+  }
+
+  @Override
+  protected MapCodec<? extends BaseEntityBlock> codec() {
+    return CODEC;
   }
 
   public static String getRegistrySuffix() {
@@ -83,21 +91,4 @@ public class WarpDislocatorBlock extends BaseEntityBlock {
         (level1, pos, blockState1, blockEntity) -> blockEntity.tick(level1, pos, blockState1));
   }
 
-  @Override
-  public void onRemove(
-      BlockState blockState,
-      @NotNull Level level,
-      @NotNull BlockPos blockPos,
-      BlockState newState,
-      boolean isMoving) {
-
-    if (blockState.getBlock() != newState.getBlock()) {
-      final BlockEntity blockEntity = level.getBlockEntity(blockPos);
-      if (blockEntity instanceof WarpDislocatorBlockEntity warpDislocatorBlockEntity) {
-        warpDislocatorBlockEntity.drops();
-      }
-    }
-
-    super.onRemove(blockState, level, blockPos, newState, isMoving);
-  }
 }

@@ -9,8 +9,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.util.LazyOptional;
-import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,8 +17,6 @@ public class SolarGeneratorBlockEntity extends DysonEnergyBlockEntity implements
   private static final int MAX_CAPACITY = 100_000;
   private static final int GENERATION_AMOUNT = 4;
   private static final int MAX_EXTRACT = 20;
-
-  private LazyOptional<IEnergyStorage> lazyEnergyHandler = LazyOptional.empty();
 
   public SolarGeneratorBlockEntity(BlockPos pos, BlockState state) {
     super(DysonBlockEntities.SOLAR_GENERATOR_ENTITY.get(), pos, state);
@@ -39,7 +35,8 @@ public class SolarGeneratorBlockEntity extends DysonEnergyBlockEntity implements
   }
 
   public void tick(final Level level, final BlockPos pos, final BlockState blockState) {
-    if (level.isDay() && level.canSeeSky(pos)) {
+    // todo level.isDay was removed. using isBrightOutside instead for now, but likely need to change
+    if (level.isBrightOutside() && level.canSeeSky(pos)) {
       this.receiveEnergy(GENERATION_AMOUNT, false);
       setChanged(level, pos, blockState);
     }
